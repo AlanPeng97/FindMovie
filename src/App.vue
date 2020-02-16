@@ -1,43 +1,32 @@
 <template>
-<div id="app" v-bind:style="{ backgroundColor: color}">
-  <Header/>
-  <router-view></router-view>
   <v-app>
+    <Header/>
+  <router-view></router-view>
+  <Footer/>
   </v-app>
-</div>
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld'
 import Header from './components/Header'
-
+import Footer from './components/Footer'
 export default {
   name: 'App',
   theme: {
     dark: true
   },
   components: {
-    Header
+    Header,
+    Footer
   },
   data: () => ({
-    color: '#fffff'
   })
 }
 </script>
 
 <style scoped>
-html, body {
+html, body, #app {
   height: 100%;
-  margin: 0;
-  padding: 0;
+  background-color: #434A54;
 }
-
-#app {
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
 </style>
