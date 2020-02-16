@@ -1,8 +1,6 @@
 <template>
-    <v-toolbar
-    :elevation="10"
-    v-bind:style="{ width: wid }"
-    absolute
+<div>
+    <v-app-bar
     dense
     >
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
@@ -22,13 +20,13 @@
       <v-btn to='/' icon>
         <v-icon>$vuetify.icons.Home</v-icon>
       </v-btn>
-    </v-toolbar>
+    </v-app-bar>
+    </div>
 </template>
 
 <script scoped>
 export default {
   data: () => ({
-    wid: '100%'
   })
 }
 </script>

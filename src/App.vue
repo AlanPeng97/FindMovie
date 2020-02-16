@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <Header/>
-  <router-view></router-view>
+  <div id="v-content" v-bind:style="{minHeight: Height+'px'}"><router-view /></div>
   <Footer/>
   </v-app>
 </template>
@@ -19,8 +19,15 @@ export default {
     Header,
     Footer
   },
-  data: () => ({
-  })
+  data () {
+    return {
+      Height: 0
+    }
+  },
+  mounted () {
+    this.Height = document.documentElement.clientHeight - 100
+    window.onresize = () => { this.Height = document.documentElement.clientHeight - 100 }
+  }
 }
 </script>
 
