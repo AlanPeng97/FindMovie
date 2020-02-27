@@ -1,19 +1,20 @@
 <template>
 <div>
-    <v-app-bar
-    dense
-    >
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+    <v-app-bar>
 
       <v-toolbar-title>FindMovieToWatch</v-toolbar-title>
-
+      <div id="tf">
+      <v-text-field
+      label="Search"
+      outlined
+      ></v-text-field>
+      </div>
+      <v-btn icon>
+        <v-icon>fa-search</v-icon>
+      </v-btn>
       <v-spacer></v-spacer>
 
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-
-      <v-btn to='/about' icon>
+      <v-btn to='/about' icon color="primary">
         <v-icon>$vuetify.icons.Account</v-icon>
       </v-btn>
 
@@ -30,3 +31,11 @@ export default {
   })
 }
 </script>
+
+<style scoped>
+#tf{
+  margin-top: 33px;
+  width: 1000px;
+  margin-left: 250px
+}
+</style>
