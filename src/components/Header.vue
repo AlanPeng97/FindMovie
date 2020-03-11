@@ -6,7 +6,7 @@
       <div id="tf">
       <v-text-field
       label="Search"
-      v-model.trim="name"
+      v-model.trim="searchName"
       outlined
       ></v-text-field>
       </div>
@@ -27,17 +27,22 @@
 </template>
 
 <script scoped>
+import global from '../components/Global'
 export default {
+  inject: ['reload'],
   data: () => ({
-    name: '',
-    searchblank: true
+    searchName: global.searchName,
+    searchBlank: true
   }),
   methods: {
     checkSearch () {
-      if (this.name !== '') {
-        this.searchblank = false
+      if (this.searchName !== '') {
+        this.searchBlank = false
+        global.searchName = this.searchName
+        this.$router.push({ path: '/about' })
+        this.reload()
       } else {
-        this.searchblank = true
+        this.searchBlank = true
         alert('Please enter your search')
       }
     }

@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <Header/>
-  <div id="v-content" v-bind:style="{minHeight: Height+'px'}"><router-view /></div>
+  <div id="v-content" v-bind:style="{minHeight: Height+'px'}"><router-view v-if='isRouterAlive'/></div>
   <Footer/>
   </v-app>
 </template>
@@ -12,6 +12,11 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 export default {
   name: 'App',
+  provide () {
+    return {
+      reload: this.reload
+    }
+  },
   theme: {
     dark: true
   },
@@ -21,7 +26,14 @@ export default {
   },
   data () {
     return {
-      Height: 0
+      Height: 0,
+      isRouterAlive: true
+    }
+  },
+  methods: {
+    reload: function () {
+      this.isRouterAlive = false
+      this.$nextTick(function () { this.isRouterAlive = true })
     }
   },
   mounted () {
