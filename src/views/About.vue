@@ -1,14 +1,36 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
-    <ul v-if="todos.data !== undefined">
-      <li v-for="res in todos.data.results" v-bind:key="res.index">
-          <h1>{{ res.title }}</h1>
-          <p> {{ res.img }} </p>
-      </li>
-    </ul>
-
-  </div>
+  <v-container fluid v-if="todos.data !== undefined">
+    <h1>Netflix</h1>
+    <v-col
+    >
+    <v-row
+    justify="space-between"
+    >
+      <v-card
+      v-for="res in todos.data.results"
+      v-bind:key="res.index"
+      max-width="209"
+      min-width="209"
+      id="card"
+      elevation="12"
+      >
+          <v-img
+          v-bind:src="res.poster"
+          min-height="300"
+          max-height="300"
+          max-width="209"
+          min-width="209"
+          ></v-img>
+          <v-card-title
+          class="d-inline-block text-truncate"
+          style="max-width: 209px;"
+          >
+            {{res.title}}
+          </v-card-title>
+      </v-card>
+      </v-row>
+      </v-col>
+  </v-container>
 </template>
 
 <script>
@@ -16,7 +38,8 @@ import global from '../components/Global'
 export default {
   data () {
     return {
-      todos: []
+      todos: [],
+      show: false
     }
   },
   mounted () {
@@ -55,3 +78,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+#card{
+  margin-bottom: 5ch;
+}
+</style>
