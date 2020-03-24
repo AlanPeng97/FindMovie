@@ -46,6 +46,6 @@ export default {
 <style scoped>
 html, body, #app {
   height: 100%;
-  background-color: #434A54;
+  background-color: #616161;
 }
 </style>

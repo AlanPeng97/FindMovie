@@ -1,18 +1,22 @@
 <template>
   <v-container fluid v-if="todos.data !== undefined">
     <h1>Netflix</h1>
-    <v-col
-    >
     <v-row
     justify="space-between"
     >
+    <template
+    v-for="res in todos.data.results"
+    >
+    <v-col
+    :key="res.index"
+    >
+    <v-hover v-slot:default="{ hover }">
       <v-card
-      v-for="res in todos.data.results"
-      v-bind:key="res.index"
       max-width="209"
       min-width="209"
       id="card"
-      elevation="12"
+      :elevation="hover ? 24 : 2"
+      :class="{'on-hover': hover}"
       >
           <v-img
           v-bind:src="res.poster"
@@ -20,7 +24,17 @@
           max-height="300"
           max-width="209"
           min-width="209"
-          ></v-img>
+          >
+           <v-expand-transition>
+             <div
+             v-if="hover"
+             class="d-flex transition-fast-in-fast-out orange darken-2 v-card--reveal display-3 white--text"
+             style="height: 100%"
+             >
+             {{res.synopsis}}
+             </div>
+           </v-expand-transition>
+          </v-img>
           <v-card-title
           class="d-inline-block text-truncate"
           style="max-width: 209px;"
@@ -28,8 +42,10 @@
             {{res.title}}
           </v-card-title>
       </v-card>
-      </v-row>
+      </v-hover>
       </v-col>
+    </template>
+    </v-row>
   </v-container>
 </template>
 
