@@ -14,6 +14,8 @@
       <v-card
       max-width="209"
       min-width="209"
+      max-height="400"
+      min-height="400"
       id="card"
       :elevation="hover ? 24 : 2"
       :class="{'on-hover': hover}"
@@ -28,19 +30,35 @@
            <v-expand-transition>
              <div
              v-if="hover"
-             class="d-flex transition-slow-in-slow-out orange darken-2 v-card--reveal display-3 white--text"
+             class="d-flex transition-slow-in-slow-out grey darken-2 v-card--reveal  white--text"
              style="height: 100%"
              >
              {{res.synopsis}}
              </div>
            </v-expand-transition>
           </v-img>
-          <v-card-title
-          class="d-inline-block text-truncate"
-          style="max-width: 209px;"
+          <v-card-text
+          class="pt-6"
+          style="max-width: 209px; position: relative;"
+          >
+                <v-btn
+          absolute
+          color="red"
+          class="white--text"
+          right
+          fab
+          top
+          large
+          >
+          Netflix
+          </v-btn>
+          <br>
+          <div
+          class="font-weight-black subtitle-1 d-inline-block text--primary"
           >
             {{res.title}}
-          </v-card-title>
+            </div>
+          </v-card-text>
       </v-card>
       </v-hover>
       </v-col>
@@ -98,5 +116,12 @@ export default {
 <style scoped>
 #card{
   margin-bottom: 5ch;
+}
+.v-card--reveal {
+  bottom: 0;
+  justify-content: center;
+  opacity: 0.7;
+  position: absolute;
+  width: 100%;
 }
 </style>
