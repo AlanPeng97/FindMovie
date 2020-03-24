@@ -28,7 +28,7 @@
            <v-expand-transition>
              <div
              v-if="hover"
-             class="d-flex transition-fast-in-fast-out orange darken-2 v-card--reveal display-3 white--text"
+             class="d-flex transition-slow-in-slow-out orange darken-2 v-card--reveal display-3 white--text"
              style="height: 100%"
              >
              {{res.synopsis}}
