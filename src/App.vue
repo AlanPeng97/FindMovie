@@ -37,8 +37,8 @@ export default {
     }
   },
   mounted () {
-    this.Height = document.documentElement.clientHeight - 100
-    window.onresize = () => { this.Height = document.documentElement.clientHeight - 100 }
+    this.Height = document.documentElement.clientHeight - 64
+    window.onresize = () => { this.Height = document.documentElement.clientHeight - 64 }
   }
 }
 </script>

@@ -9,7 +9,8 @@ export default new Vuetify({
     iconfont: 'mdi',
     values: {
       Account: 'fas fa-user-circle',
-      Home: 'fas fa-home'
+      Home: 'fas fa-home',
+      Bar: 'fas fa-bars'
     }
   }
 })
