@@ -35,10 +35,10 @@
         </template>
         </div>
      </template>
-     <v-btn class="ma-2" icon>
+     <v-btn large class="ma-2" icon>
      <v-icon>mdi-heart</v-icon>
      </v-btn>
-     <v-btn class="ma-2" icon>
+     <v-btn large class="ma-2" icon>
         <v-icon>mdi-share-variant</v-icon>
       </v-btn>
      </div>
@@ -58,13 +58,124 @@
     </v-carousel-item>
   </v-carousel>
  </v-sheet>
-
+<v-container v-if="now.data !== undefined">
+  <h1 class="classify">Now Playing</h1>
+  <v-row>
+  <template v-for="now in now.data.results.slice(0,6)">
+    <v-col :key="now.index" cols="md-4">
+      <template>
+    <v-hover v-slot:default="{ hover }">
+  <v-card class="movieCard ml-2 mr-2" max-width="500">
+    <v-img class="hover" :src=getSmallImgUrl(now.backdrop_path)>
+  <v-expand-transition>
+          <div
+            v-if="hover"
+            class="transition-slow-in-slow-out grey darken-2 v-card--reveal display-3 white--text"
+            style="height: 100%;"
+          >
+           <h6 class="cardtitle">{{now.title}}</h6>
+           <div class="genrechip d-flex">
+              <template v-for="gen in now.genre_ids">
+                <div v-if="genre.data !== undefined" :key="gen.index">
+                  <template v-for="match in genre.data.genres">
+                    <span class="type pl-1" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">({{match.name}})</span>
+                  </template>
+                  </div>
+              </template>
+           </div>
+           <div class="rate d-flex">
+           <template>
+           <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
+           <h6>{{now.vote_average}}</h6>
+         </template>
+          </div>
+            <div class="information ma-1">
+              <v-btn @click="toggle(now)" color="primary">More information</v-btn>
+            </div>
+          </div>
+  </v-expand-transition>
+  </v-img>
+  </v-card>
+    </v-hover>
+    <div>
+    <v-overlay
+          opacity="0.7"
+          v-if="now.video"
+          z-index="5"
+        >
+        <v-card class="d-flex" color="white" height="750" max-width="1500">
+          <v-img :src=getSmallImgUrl(now.poster_path) max-width="500" max-height="750"></v-img>
+          <div>
+            <v-card-title class="overlaytitle display-4 font-weight-bold">{{now.title}}</v-card-title>
+            <div class="d-flex">
+                <template v-for="gen in now.genre_ids">
+                  <div v-if="genre.data !== undefined" :key="gen.index">
+                    <template v-for="match in genre.data.genres">
+                      <v-chip class="ma-2" elevation="24" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-chip>
+                    </template>
+                  </div>
+                </template>
+            </div>
+              <v-sheet
+              class="ma-4 white d-flex justify-space-around"  height="100" max-width="1000" elevation="24"
+              >
+                <div class="point ma-6 d-flex">
+                  <template>
+                    <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
+                    <h1 class="orange--text">{{now.vote_average}}</h1>
+                    <h2 class="pt-1 black--text">({{now.vote_count}} votes)</h2>
+                  </template>
+                </div>
+                <div class="ma-6 d-flex">
+                  <template>
+                    <v-btn x-large color="red" icon><v-icon>{{mdiFire}}</v-icon></v-btn>
+                    <h1 class="amber--text">{{now.popularity}}</h1>
+                  </template>
+                </div>
+                <div class="date ma-6 d-flex">
+                  <template>
+                    <v-btn x-large color="blue" icon><v-icon>{{mdiDate}}</v-icon></v-btn>
+                    <h1 class="teal--text">{{now.release_date}}</h1>
+                  </template>
+                </div>
+              </v-sheet>
+           <template>
+            <p class="overview headline pa-2">{{now.overview}}</p>
+          </template>
+          <div class="addbtn ma-2">
+            <v-btn
+              icon
+              x-large
+              color="grey"
+            >
+              <v-icon>{{mdiAdd}}</v-icon>
+            </v-btn>
+          </div>
+          <div class="hidebtn ma-2">
+            <v-btn
+              color="primary"
+              icon
+              x-large
+              @click="now.video = false"
+            >
+              <v-icon>{{mdiClose}}</v-icon>
+            </v-btn>
+          </div>
+          </div>
+          </v-card>
+        </v-overlay>
+        </div>
+    </template>
+    </v-col>
+  </template>
+  </v-row>
+</v-container>
   </v-container>
 </template>
 
 <script>
 // @ is an alias to /src
-
+import { mdiFire, mdiCalendarRange, mdiAccountHeart, mdiCloseOctagon } from '@mdi/js'
 export default {
   name: 'Home',
   components: {
@@ -72,12 +183,24 @@ export default {
   data () {
     return {
       carousel: [],
-      genre: []
+      genre: [],
+      now: [],
+      mdiFire: mdiFire,
+      mdiDate: mdiCalendarRange,
+      mdiAdd: mdiAccountHeart,
+      mdiClose: mdiCloseOctagon
     }
   },
   methods: {
+    toggle (item) {
+      item.video = !item.video
+    },
     getImgUrl (end) {
       var url = 'https://image.tmdb.org/t/p/original' + end
+      return url
+    },
+    getSmallImgUrl (end) {
+      var url = 'https://image.tmdb.org/t/p/w500' + end
       return url
     },
     stringToNum (string) {
@@ -130,7 +253,6 @@ export default {
   mounted () {
     this.$axios.get('https://api.themoviedb.org/3/trending/movie/week?api_key=429233d493668f762d684c920d9ceafc')
       .then(carousel => {
-        console.log(carousel)
         this.carousel = carousel
       })
       .catch(err => {
@@ -138,8 +260,15 @@ export default {
       })
     this.$axios.get('https://api.themoviedb.org/3/genre/movie/list?api_key=429233d493668f762d684c920d9ceafc')
       .then(genre => {
-        console.log(genre)
         this.genre = genre
+      })
+      .catch(err => {
+        console.error(err)
+      })
+    this.$axios.get('https://api.themoviedb.org/3/movie/now_playing?api_key=429233d493668f762d684c920d9ceafc')
+      .then(now => {
+        console.log(now)
+        this.now = now
       })
       .catch(err => {
         console.error(err)
@@ -177,5 +306,63 @@ export default {
 }
 .likeButtom{
   padding-top: -1em;
+}
+.classify{
+  color: white;
+}
+.movieCard{
+  -webkit-transform: scale(1);
+  transform: scale(1);
+  -webkit-transition: .3s ease-in-out;
+  transition: .3s ease-in-out;
+  width: 100vw;
+  height: 100%;
+}
+.movieCard:hover {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+.v-card--reveal {
+  bottom: 0;
+  align-items: top;
+  justify-content: start;
+  opacity: .8;
+  position: absolute;
+  width: 100%;
+}
+.cardtitle{
+  color: rgb(255, 255, 255);
+  padding-top: 0%;
+}
+.type{
+  font-size: 20px;
+  color: rgb(255, 145, 0);
+  font-weight: bolder;
+  overflow: hidden;
+}
+.rate{
+  position: absolute;left: 0;bottom: 0;
+}
+.information{
+  position: absolute;right: 0;bottom: 0;
+}
+.clobtn{
+  padding-left: 0;
+}
+p{
+  white-space: normal;
+  word-wrap: break-all;
+}
+.overview{
+  color: #546E7A;
+}
+.hidebtn{
+  position: absolute;right: 0;bottom: 0;
+}
+.addbtn{
+  position: absolute;left: 500;bottom: 0;
+}
+.overlaytitle{
+  color: #424242;
 }
 </style>
