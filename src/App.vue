@@ -31,7 +31,11 @@ export default {
     }
   },
   methods: {
-    reload: function () {
+    // reload: function () {
+    //   this.isRouterAlive = false
+    //   this.$nextTick(function () { this.isRouterAlive = true })
+    // },
+    async reload () {
       this.isRouterAlive = false
       this.$nextTick(function () { this.isRouterAlive = true })
     }

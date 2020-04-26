@@ -5,8 +5,10 @@ import store from './store'
 import Vuetify from 'vuetify'
 import vuetify from './plugins/vuetify'
 import axios from '../node_modules/axios'
+import VueResource from 'vue-resource'
 
 Vue.use(Vuetify)
+Vue.use(VueResource)
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 

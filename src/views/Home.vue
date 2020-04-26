@@ -1,6 +1,6 @@
 <template>
  <v-container
-  class="mt-n3 pl-0 px-0 pb-0"
+  class="mt-12 pl-0 px-0 pb-0"
   fluid
   v-if="carousel.data !== undefined"
  >
@@ -26,7 +26,7 @@
     absolute
     >
     <div>
-     <h1>{{cars.title}}</h1>
+     <v-subheader class="h1">{{cars.title}}</v-subheader>
      <div class="genre d-flex">
      <template v-for="gen in cars.genre_ids">
        <div v-if="genre.data !== undefined" :key="gen.index">
@@ -35,7 +35,7 @@
         </template>
         </div>
      </template>
-     <v-btn large class="ma-2" icon>
+     <v-btn large class="ma-2" icon @click=addMovie(cars.id,cars.title,cars.popularity,cars.overview,cars.release_date,cars.vote_average,cars.vote_count,cars.genre_ids,cars.backdrop_path,cars.poster_path,cars.video)>
      <v-icon>mdi-heart</v-icon>
      </v-btn>
      <v-btn large class="ma-2" icon>
@@ -60,6 +60,7 @@
  </v-sheet>
 <v-container v-if="now.data !== undefined">
   <h1 class="classify">Now Playing</h1>
+  <hr class="divider">
   <v-row>
   <template v-for="now in now.data.results.slice(0,6)">
     <v-col :key="now.index" cols="md-4">
@@ -78,7 +79,7 @@
               <template v-for="gen in now.genre_ids">
                 <div v-if="genre.data !== undefined" :key="gen.index">
                   <template v-for="match in genre.data.genres">
-                    <span class="type pl-1" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">({{match.name}})</span>
+                    <v-btn class="gen type pl-1" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-btn>
                   </template>
                   </div>
               </template>
@@ -175,6 +176,7 @@
 
 <script>
 // @ is an alias to /src
+import { getCookie } from '../assets/js/cookie'
 import { mdiFire, mdiCalendarRange, mdiAccountHeart, mdiCloseOctagon } from '@mdi/js'
 export default {
   name: 'Home',
@@ -185,6 +187,8 @@ export default {
       carousel: [],
       genre: [],
       now: [],
+      title: [],
+      name: '',
       mdiFire: mdiFire,
       mdiDate: mdiCalendarRange,
       mdiAdd: mdiAccountHeart,
@@ -194,6 +198,21 @@ export default {
   methods: {
     toggle (item) {
       item.video = !item.video
+    },
+    addMovie (id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster, video) {
+      var titleM = title
+      var idM = id
+      var popM = pop
+      var overviewM = overview
+      var dateM = date
+      var voteM = this.stringToNum(vote)
+      var genreidsM = genreids
+      var votecountM = votecount
+      var backdropM = this.getSmallImgUrl(backdrop)
+      var posterM = this.getSmallImgUrl(poster)
+      var videoM = video
+      console.log(titleM, idM, popM, overviewM, dateM, voteM, votecountM, JSON.stringify(genreidsM), backdropM, posterM, videoM)
+      return titleM
     },
     getImgUrl (end) {
       var url = 'https://image.tmdb.org/t/p/original' + end
@@ -251,6 +270,19 @@ export default {
     }
   },
   mounted () {
+    var uname = getCookie('username')
+    this.name = uname
+    console.log(this.name)
+    this.$axios.post('api/likelist', { username: uname })
+      .then(res => {
+        console.log(res)
+        if (res.data === 0) {
+          console.log('operation failed')
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
     this.$axios.get('https://api.themoviedb.org/3/trending/movie/week?api_key=429233d493668f762d684c920d9ceafc')
       .then(carousel => {
         this.carousel = carousel
@@ -267,7 +299,6 @@ export default {
       })
     this.$axios.get('https://api.themoviedb.org/3/movie/now_playing?api_key=429233d493668f762d684c920d9ceafc')
       .then(now => {
-        console.log(now)
         this.now = now
       })
       .catch(err => {
@@ -281,12 +312,13 @@ export default {
 .overlay{
   background: linear-gradient(to top,black,30%,transparent);
 }
-.overlay h1{
+.overlay .h1{
     font-size: 60px;
-    margin-bottom: -100px;
-    opacity: 90%;
+    margin-bottom: -80px;
+    opacity: 100%;
     padding-top: 8em;
     font-weight: normal;
+    color: rgb(255, 255, 255);
 }
 .overlay p{
   font-size: 20px;
