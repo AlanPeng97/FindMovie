@@ -2,8 +2,20 @@
  <v-container
   class="mt-12 pl-0 px-0 pb-0"
   fluid
-  v-if="carousel.data !== undefined"
+  v-if="checkCarousel !== undefined"
  >
+ <v-snackbar
+  v-model="showHint"
+  :color="color"
+  top
+  :timeout="timeout"
+  >
+  {{ hint }}
+  <v-btn
+  text
+  @click="showHint = false"
+  >Close</v-btn>
+  </v-snackbar>
 <v-sheet
 >
   <v-carousel
@@ -12,7 +24,7 @@
     height="auto"
   >
     <v-carousel-item
-     v-for="cars in carousel.data.results"
+     v-for="cars in checkCarousel"
      :key="cars.index"
      >
      <v-card>
@@ -35,7 +47,7 @@
         </template>
         </div>
      </template>
-     <v-btn large class="ma-2" icon @click=addMovie(cars.id,cars.title,cars.popularity,cars.overview,cars.release_date,cars.vote_average,cars.vote_count,cars.genre_ids,cars.backdrop_path,cars.poster_path,cars.video)>
+     <v-btn large v-bind:class="[cars.collect? col:notcol]" class="ma-2" icon @click=operateMovie(cars,cars.id,cars.title,cars.popularity,cars.overview,cars.release_date,cars.vote_average,cars.vote_count,cars.genre_ids,cars.backdrop_path,cars.poster_path)>
      <v-icon>mdi-heart</v-icon>
      </v-btn>
      <v-btn large class="ma-2" icon>
@@ -58,11 +70,11 @@
     </v-carousel-item>
   </v-carousel>
  </v-sheet>
-<v-container v-if="now.data !== undefined">
+<v-container v-if="checkNow !== undefined">
   <h1 class="classify">Now Playing</h1>
   <hr class="divider">
   <v-row>
-  <template v-for="now in now.data.results.slice(0,6)">
+  <template v-for="now in checkNow.slice(0,6)">
     <v-col :key="now.index" cols="md-4">
       <template>
     <v-hover v-slot:default="{ hover }">
@@ -147,7 +159,8 @@
             <v-btn
               icon
               x-large
-              color="grey"
+              @click=operateMovie(now,now.id,now.title,now.popularity,now.overview,now.release_date,now.vote_average,now.vote_count,now.genre_ids,now.backdrop_path,now.poster_path)
+              v-bind:class="[now.collect? col:notcol]"
             >
               <v-icon>{{mdiAdd}}</v-icon>
             </v-btn>
@@ -186,8 +199,15 @@ export default {
     return {
       carousel: [],
       genre: [],
-      now: [],
-      title: [],
+      likeList: [],
+      checkCarousel: [],
+      checkNow: [],
+      showHint: false,
+      timeout: 6000,
+      col: 'red',
+      notcol: 'grey',
+      color: '',
+      hint: '',
       name: '',
       mdiFire: mdiFire,
       mdiDate: mdiCalendarRange,
@@ -196,23 +216,118 @@ export default {
     }
   },
   methods: {
+    toggleColoect (item) {
+      item.collect = !item.collect
+      // this.$axios.post('api/likelist', { username: this.name })
+      //   .then(updatelike => {
+      //     this.likeList = updatelike
+      //     console.log(this.likeList)
+      //     if (updatelike.data === 0) {
+      //       console.log('There is no data in user likelist')
+      //     }
+      //   })
+      //   .catch(err => {
+      //     console.error(err)
+      //   })
+      // for (var i = 0; i < this.checkCarousel.length; i++) {
+      //   for (var j = 0; j < this.likeList.length; j++) {
+      //     if (this.checkCarousel[i].id === this.likeList[j].movieid) {
+      //       this.checkCarousel[i].collect = true
+      //     }
+      //   }
+      //   if (this.checkCarousel[i].collect !== true) {
+      //     this.checkCarousel[i].collect = false
+      //   }
+      // }
+      // for (var x = 0; x < this.checkNow.slice(0, 6).length; x++) {
+      //   for (var y = 0; y < this.likeList.length; y++) {
+      //     if (this.checkNow[x].id === this.likeList[y].movieid) {
+      //       this.checkNow[x].collect = true
+      //     }
+      //   }
+      //   if (this.checkNow[x].collect !== true) {
+      //     this.checkNow[x].collect = false
+      //   }
+      // }
+    },
     toggle (item) {
       item.video = !item.video
     },
     addMovie (id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster, video) {
+      this.$axios.post('api/addmov', { id: id, title: title, popularity: pop, overview: overview, date: date, vote: vote, votecount: votecount, genreids: genreids, backdrop: backdrop, poster: poster, video: video })
+        .then(resMov => {
+          console.log(resMov)
+          if (resMov.data === 0) {
+            console.log('The information of movie is already in the database')
+          } else if (resMov.status === 200) {
+            console.log('The information of movie has added into DB')
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    },
+    operateMovie (item, id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster) {
       var titleM = title
       var idM = id
       var popM = pop
       var overviewM = overview
       var dateM = date
       var voteM = this.stringToNum(vote)
-      var genreidsM = genreids
+      var genreidsM = JSON.stringify(genreids)
       var votecountM = votecount
       var backdropM = this.getSmallImgUrl(backdrop)
       var posterM = this.getSmallImgUrl(poster)
-      var videoM = video
-      console.log(titleM, idM, popM, overviewM, dateM, voteM, votecountM, JSON.stringify(genreidsM), backdropM, posterM, videoM)
-      return titleM
+      var videoM = false
+      var uname = this.name
+      if (uname === '') {
+        this.showHint = true
+        this.hint = 'Please login'
+        this.color = 'amber'
+      } else {
+        if (item.collect === false) {
+          this.$axios.post('api/addfav', { movieid: idM, username: this.name })
+            .then(resfav => {
+              console.log(resfav)
+              if (resfav.data === -1) {
+                console.log('The information of like is already in the database')
+                this.addMovie(idM, titleM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
+                this.toggleColoect(item)
+                this.showHint = true
+                this.hint = ' Collected Successfully'
+                this.color = 'success'
+              } else if (resfav.status === 200) {
+                this.addMovie(idM, titleM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
+                this.toggleColoect(item)
+                this.showHint = true
+                this.hint = ' Collected Successfully'
+                this.color = 'success'
+              }
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        } else if (item.collect === true) {
+          this.$axios.post('api/delLike', { movieid: idM, username: this.name })
+            .then(delres => {
+              console.log(delres)
+              if (delres.data === 0) {
+                console.log('object does not in the DB')
+                this.toggleColoect(item)
+              } else {
+                this.showHint = true
+                this.hint = 'Deleted Successfully'
+                this.color = 'orange'
+                this.toggleColoect(item)
+              }
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
+      }
+      console.log(titleM, idM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
+      // return titleM
     },
     getImgUrl (end) {
       var url = 'https://image.tmdb.org/t/p/original' + end
@@ -274,9 +389,10 @@ export default {
     this.name = uname
     console.log(this.name)
     this.$axios.post('api/likelist', { username: uname })
-      .then(res => {
-        console.log(res)
-        if (res.data === 0) {
+      .then(like => {
+        this.likeList = like
+        console.log(this.likeList)
+        if (like.data === 0) {
           console.log('operation failed')
         }
       })
@@ -286,6 +402,26 @@ export default {
     this.$axios.get('https://api.themoviedb.org/3/trending/movie/week?api_key=429233d493668f762d684c920d9ceafc')
       .then(carousel => {
         this.carousel = carousel
+        var jsonObj = JSON.parse(JSON.stringify(carousel.data.results))
+        // console.log('before add' + JSON.stringify(jsonObj))
+        if (this.name !== '') {
+          if (this.likeList.data !== undefined) {
+            var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+          }
+          console.log(JSON.stringify(likeObj))
+          for (var i = 0; i < jsonObj.length; i++) {
+            for (var j = 0; j < likeObj.length; j++) {
+              if (jsonObj[i].id === likeObj[j].movieid) {
+                jsonObj[i].collect = true
+              }
+            }
+            if (jsonObj[i].collect === undefined) {
+              jsonObj[i].collect = false
+            }
+          }
+        }
+        this.checkCarousel = jsonObj
+        // console.log('after added：' + JSON.stringify(this.checkCarousel))
       })
       .catch(err => {
         console.error(err)
@@ -299,7 +435,26 @@ export default {
       })
     this.$axios.get('https://api.themoviedb.org/3/movie/now_playing?api_key=429233d493668f762d684c920d9ceafc')
       .then(now => {
-        this.now = now
+        var jsonObj = JSON.parse(JSON.stringify(now.data.results))
+        console.log('before add' + JSON.stringify(jsonObj))
+        if (this.name !== '') {
+          if (this.likeList.data !== undefined) {
+            var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+          }
+          console.log(JSON.stringify(likeObj))
+          for (var i = 0; i < jsonObj.length; i++) {
+            for (var j = 0; j < likeObj.length; j++) {
+              if (jsonObj[i].id === likeObj[j].movieid) {
+                jsonObj[i].collect = true
+              }
+            }
+            if (jsonObj[i].collect === undefined) {
+              jsonObj[i].collect = false
+            }
+          }
+        }
+        this.checkNow = jsonObj
+        console.log('after added：' + JSON.stringify(this.checkNow))
       })
       .catch(err => {
         console.error(err)

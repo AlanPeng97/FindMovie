@@ -1,13 +1,22 @@
 <template>
-    <v-container><div>h</div></v-container>
+    <v-container
+    class="mt-12 pl-0 px-0 pb-0"
+    ><h1 class="headtitle display-4 font-weight-bold">Hi!</h1>
+    <div class="headtitle display-3 font-weight-bold">{{name}}</div>
+    </v-container>
 </template>
 
 <script>
+import { mdiFire, mdiCalendarRange, mdiAccountHeart, mdiCloseOctagon } from '@mdi/js'
 import { getCookie, delCookie } from '../assets/js/cookie'
 export default {
   data () {
     return {
-      name: ''
+      name: '',
+      mdiFire: mdiFire,
+      mdiDate: mdiCalendarRange,
+      mdiAdd: mdiAccountHeart,
+      mdiClose: mdiCloseOctagon
     }
   },
   mounted () {
@@ -27,5 +36,7 @@ export default {
 </script>
 
 <style scoped>
-
+.headtitle{
+  color: #FAFAFA;
+}
 </style>

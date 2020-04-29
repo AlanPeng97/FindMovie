@@ -75,7 +75,7 @@ export default {
     show1: false,
     valid: true,
     showHint: false,
-    timeout: 0,
+    timeout: 6000,
     color: '',
     hint: '',
     name: '',

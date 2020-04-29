@@ -105,7 +105,7 @@
 <script>
 export default {
   data: () => ({
-    timeout: 0,
+    timeout: 6000,
     show1: false,
     show2: false,
     valid: true,
@@ -159,6 +159,10 @@ export default {
             this.password = ''
             this.confirmPassword = ''
             this.checkbox = false
+            setTimeout(function () {
+              this.$router.push({ path: '/login' })
+              this.showHint = false
+            }.bind(this), 6000)
           }
         })
         .catch(err => {

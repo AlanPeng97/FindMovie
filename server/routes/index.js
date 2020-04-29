@@ -96,7 +96,7 @@ router.post('/addfav', (req, res) => {
   var addlike = $sql.user.add_likedmovie
   var params = req.body
   console.log(params)
-  connection.query(sqllike, params.username, function (err, result) {
+  connection.query(sqllike, [params.movieid, params.username], function (err, result) {
     if (err) {
       console.log(err)
     }
@@ -125,7 +125,7 @@ router.post('/addmov', (req, res) => {
       console.log(err)
     }
     if (result[0] === undefined) {
-      connection.query(addmovieinfo, [params.id, params.title, params.popularity, params.overview, params.date, params.vote, params.votecount, params.geredis, params.backdrop, params.poster, params.video], function (err, result) {
+      connection.query(addmovieinfo, [params.id, params.title, params.popularity, params.overview, params.date, params.vote, params.votecount, params.genreids, params.backdrop, params.poster, params.video], function (err, result) {
         if (err) {
           console.log(err)
         }
@@ -134,7 +134,57 @@ router.post('/addmov', (req, res) => {
         }
       })
     } else {
-      res.send('-1')
+      res.send('0')
+    }
+  })
+})
+
+router.post('/delLike', (req, res) => {
+  var sqllike = $sql.user.check_likeMovie
+  var deletelike = $sql.user.delete_likedmovie
+  var params = req.body
+  console.log(params)
+  connection.query(sqllike, [params.movieid, params.username], function (err, result) {
+    if (err) {
+      console.log(err)
+    }
+    if (result[0] === undefined) {
+      res.send('0')
+    } else {
+      connection.query(deletelike, [params.movieid, params.username], function (err, result) {
+        if (err) {
+          console.log(err)
+        }
+        if (result) {
+          jsonWrite(res, result)
+        }
+      })
+    }
+  })
+})
+
+router.post('/showlike', (req, res) => {
+  var sqllike = $sql.user.select_likeList
+  var sqlmovie = $sql.user.select_likeMovie
+  var params = req.body
+  console.log(params)
+  connection.query(sqllike, params.username, function (err, result) {
+    if (err) {
+      console.log(err)
+    }
+    if (result[0] === undefined) {
+      res.send('0')
+    } else {
+      connection.query(sqlmovie, params.username, function (err, result) {
+        if (err) {
+          console.log(err)
+        }
+        if (result[0] === undefined) {
+          res.send('-1')
+        } else {
+          jsonWrite(res, result)
+        }
+      })
     }
   })
 })

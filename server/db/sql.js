@@ -3,7 +3,8 @@ var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'lyw980826',
-  database: 'demo'
+  database: 'demo',
+  multipleStatements: true
 })
 
 module.exports = connection

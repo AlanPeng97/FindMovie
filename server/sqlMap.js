@@ -9,8 +9,8 @@ var sqlMap = {
     check_likeMovie: 'SELECT * FROM liked WHERE movieid = ? AND username = ?',
     check_movie: 'SELECT * FROM movieinfo WHERE id = ?',
     add_likedmovie: 'INSERT INTO liked(movieid, username) VALUES (?, ?)',
-    delete_likedmovie: 'DELETE FROM liked WHERE movieid = ?',
-    add_movieinfo: 'INSERT INTO movieinfo(id, title, popularity, overview, date, vote, votecount, genredis, backdrop, poster, video) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    delete_likedmovie: 'DELETE FROM liked WHERE movieid = ? AND username = ?',
+    add_movieinfo: 'INSERT INTO movieinfo (id, title, popularity, overview, date, vote, votecount, genreids, backdrop, poster, video) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
   }
 }
 
