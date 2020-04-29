@@ -401,11 +401,10 @@ export default {
       })
     this.$axios.get('https://api.themoviedb.org/3/trending/movie/week?api_key=429233d493668f762d684c920d9ceafc')
       .then(carousel => {
-        this.carousel = carousel
         var jsonObj = JSON.parse(JSON.stringify(carousel.data.results))
         // console.log('before add' + JSON.stringify(jsonObj))
         if (this.name !== '') {
-          if (this.likeList.data !== undefined) {
+          if (this.likeList.data !== 0) {
             var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
           }
           console.log(JSON.stringify(likeObj))
@@ -438,7 +437,7 @@ export default {
         var jsonObj = JSON.parse(JSON.stringify(now.data.results))
         console.log('before add' + JSON.stringify(jsonObj))
         if (this.name !== '') {
-          if (this.likeList.data !== undefined) {
+          if (this.likeList.data !== 0) {
             var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
           }
           console.log(JSON.stringify(likeObj))

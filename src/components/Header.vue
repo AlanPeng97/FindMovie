@@ -74,7 +74,7 @@
         </v-list>
       </v-card>
      </v-menu>
-      <v-btn to='/' @click=reloadState icon color="primary">
+      <v-btn to='/' icon color="primary">
         <v-icon>$vuetify.icons.Home</v-icon>
       </v-btn>
     </v-app-bar>
