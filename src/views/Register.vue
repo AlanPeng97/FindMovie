@@ -103,6 +103,7 @@
 </template>
 
 <script>
+import md5 from 'js-md5'
 export default {
   data: () => ({
     timeout: 6000,
@@ -139,7 +140,8 @@ export default {
   methods: {
     register () {
       var name = this.name
-      var pass = this.password
+      var pass = md5(this.password)
+      console.log(pass)
       this.$axios.post('api/register', { username: name, password: pass })
         .then(res => {
           console.log(res)

@@ -69,6 +69,7 @@
 </template>
 
 <script>
+import md5 from 'js-md5'
 import { setCookie } from '../assets/js/cookie'
 export default {
   data: () => ({
@@ -93,7 +94,7 @@ export default {
   methods: {
     login () {
       var name = this.name
-      var pass = this.password
+      var pass = md5(this.password)
       this.$axios.post('api/login', { username: name, password: pass })
         .then(res => {
           console.log(res)

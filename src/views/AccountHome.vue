@@ -15,10 +15,13 @@
   @click="showHint = false"
   >Close</v-btn>
   </v-snackbar>
-    <v-container v-if="favorite !== undefined">
+    <v-container>
   <h1 class="classify">Your favorite</h1>
   <hr class="divider">
-  <v-row>
+  <div class="text-center">
+  <v-btn v-if="favorite === undefined" to="/" class="ma-2 white--text" color="light-blue" x-large>Choose your favorite</v-btn>
+  </div>
+  <v-row  v-if="favorite !== undefined">
   <template v-for="fav in favorite">
     <v-col :key="fav.index" cols="md-4">
       <template>
@@ -174,30 +177,25 @@ export default {
       })
     this.$axios.post('api/showlike', { username: this.name })
       .then(fav => {
-        if (fav.data === 0 || fav.data === -1) {
-        } else {
+        // console.log('before add' + JSON.stringify(jsonObj))
+        if (this.name !== '' && fav.data !== 0 && this.likeList.data !== 0) {
           var jsonObj = JSON.parse(JSON.stringify(fav.data))
-          // console.log('before add' + JSON.stringify(jsonObj))
-          if (this.name !== '') {
-            if (this.likeList.data !== undefined) {
-              var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-            }
-            console.log(JSON.stringify(likeObj))
-            for (var i = 0; i < jsonObj.length; i++) {
-              for (var j = 0; j < likeObj.length; j++) {
-                if (jsonObj[i].id === likeObj[j].movieid) {
-                  jsonObj[i].collect = true
-                }
+          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+          console.log(JSON.stringify(likeObj))
+          for (var i = 0; i < jsonObj.length; i++) {
+            for (var j = 0; j < likeObj.length; j++) {
+              if (jsonObj[i].id === likeObj[j].movieid) {
+                jsonObj[i].collect = true
               }
-              if (jsonObj[i].collect === undefined) {
-                jsonObj[i].collect = false
-              }
-              jsonObj[i].genreids = JSON.parse(jsonObj[i].genreids)
             }
+            if (jsonObj[i].collect === undefined) {
+              jsonObj[i].collect = false
+            }
+            jsonObj[i].genreids = JSON.parse(jsonObj[i].genreids)
           }
-          this.favorite = jsonObj
-          console.log('after added：' + JSON.stringify(this.favorite))
         }
+        this.favorite = jsonObj
+        console.log('after added：' + JSON.stringify(this.favorite))
       })
       .catch(err => {
         console.error(err)

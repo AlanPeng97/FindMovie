@@ -404,9 +404,7 @@ export default {
         var jsonObj = JSON.parse(JSON.stringify(carousel.data.results))
         // console.log('before add' + JSON.stringify(jsonObj))
         if (this.name !== '') {
-          if (this.likeList.data !== 0) {
-            var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          }
+          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
           console.log(JSON.stringify(likeObj))
           for (var i = 0; i < jsonObj.length; i++) {
             for (var j = 0; j < likeObj.length; j++) {
@@ -437,9 +435,7 @@ export default {
         var jsonObj = JSON.parse(JSON.stringify(now.data.results))
         console.log('before add' + JSON.stringify(jsonObj))
         if (this.name !== '') {
-          if (this.likeList.data !== 0) {
-            var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          }
+          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
           console.log(JSON.stringify(likeObj))
           for (var i = 0; i < jsonObj.length; i++) {
             for (var j = 0; j < likeObj.length; j++) {
