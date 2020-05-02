@@ -17,7 +17,7 @@
     fixed
     hide-on-scroll
     >
-    <v-btn @click="drawer = true" icon color="primary">
+    <v-btn @click="drawer = !drawer" icon color="primary">
         <v-icon>$vuetify.icons.Bar</v-icon>
       </v-btn>
       <v-toolbar-title>FindMovieToWatch</v-toolbar-title>
@@ -45,7 +45,7 @@
       </template>
       <v-card>
         <v-list>
-          <v-list-item-group color="primary">
+          <v-list-item-group  color="primary">
             <v-list-item v-if="!loginState" @click=reloadState to="/login">
               <v-list-item-icon>
                 <v-icon>mdi-login</v-icon>
@@ -88,20 +88,27 @@
         dense
       >
         <v-list-item-group
-          active-class="deep-purple--text text--accent-4"
+        color="primary"
         >
-          <v-list-item>
+          <v-list-item @click=reloadState to="/">
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item @click=reloadState to="/account">
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Account</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item @click=reloadState to="/pop">
+            <v-list-item-icon>
+              <v-icon>{{mdiPop}}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Popular</v-list-item-title>
           </v-list-item>
 
         </v-list-item-group>
@@ -111,7 +118,7 @@
 </template>
 
 <script scoped>
-import { mdiAccountArrowRight, mdiLogoutVariant } from '@mdi/js'
+import { mdiAccountArrowRight, mdiLogoutVariant, mdiAlphaPCircleOutline } from '@mdi/js'
 import global from '../components/Global'
 import { getCookie, delCookie } from '../assets/js/cookie'
 export default {
@@ -120,6 +127,7 @@ export default {
     searchName: global.searchName,
     mdiAccount: mdiAccountArrowRight,
     mdiLogout: mdiLogoutVariant,
+    mdiPop: mdiAlphaPCircleOutline,
     showHint: false,
     timeout: 0,
     color: '',
@@ -134,6 +142,7 @@ export default {
     reloadState () {
       const uname = getCookie('username')
       this.name = uname
+      console.log(this.name)
       if (uname !== '') {
         this.loginState = true
       } else if (uname === '') {

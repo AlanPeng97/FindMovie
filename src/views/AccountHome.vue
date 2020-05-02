@@ -234,11 +234,17 @@ export default {
     // },
     operateFav (item, id) {
       var idM = id
+      var checkname = getCookie('username')
+      this.name = checkname
       var uname = this.name
       if (uname === '') {
         this.showHint = true
         this.hint = 'Please login'
         this.color = 'amber'
+        setTimeout(function () {
+          this.$router.push({ path: '/login' })
+          this.showHint = false
+        }.bind(this), 1000)
       } else {
         if (item.collect === false) {
           this.$axios.post('api/addfav', { movieid: idM, username: this.name })

@@ -1,10 +1,8 @@
 <template>
- <v-container
-  class="mt-12 pl-0 px-0 pb-0"
-  fluid
-  v-if="checkCarousel !== undefined"
- >
- <v-snackbar
+    <v-container
+    class="mt-12 pl-0 px-0 pb-0"
+    >
+    <v-snackbar
   v-model="showHint"
   :color="color"
   top
@@ -16,79 +14,25 @@
   @click="showHint = false"
   >Close</v-btn>
   </v-snackbar>
-<v-sheet
->
-  <v-carousel
-    cycle
-    show-arrows-on-hoverh
-    height="auto"
-  >
-    <v-carousel-item
-     v-for="cars in checkCarousel"
-     :key="cars.index"
-     >
-     <v-card>
-       <v-img
-       :src=getImgUrl(cars.backdrop_path)
-       height="1000"></v-img>
-     </v-card>
-    <v-overlay
-    class="overlay"
-    opacity="0.4"
-    absolute
-    >
-    <div>
-     <v-subheader class="h1">{{cars.title}}</v-subheader>
-     <div class="genre d-flex">
-     <template v-for="gen in cars.genre_ids">
-       <div v-if="genre.data !== undefined" :key="gen.index">
-        <template v-for="match in genre.data.genres">
-          <v-btn class="ma-2" rounded elevation="24" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-btn>
-        </template>
-        </div>
-     </template>
-     <v-btn large v-bind:class="[cars.collect? col:notcol]" class="ma-2" icon @click=operateMovie(cars,cars.id,cars.title,cars.popularity,cars.overview,cars.release_date,cars.vote_average,cars.vote_count,cars.genre_ids,cars.backdrop_path,cars.poster_path)>
-     <v-icon>mdi-heart</v-icon>
-     </v-btn>
-     <v-btn large class="ma-2" icon>
-        <v-icon>mdi-share-variant</v-icon>
-      </v-btn>
-     </div>
-     <v-rating
-     class="rating"
-     half-increments
-     length="10"
-     :value=stringToNum(cars.vote_average)
-     background-color="orange lighten-3"
-     color="orange"
-     large
-     readonly
-     ></v-rating>
-     <p>{{cars.overview}}</p>
-    </div>
-    </v-overlay>
-    </v-carousel-item>
-  </v-carousel>
- </v-sheet>
-<v-container v-if="checkNow !== undefined">
-  <h1 class="classify">Now Playing</h1>
+    <v-container>
+  <h1 class="classify">Popular</h1>
   <hr class="divider">
-  <v-row>
-  <template v-for="now in checkNow.slice(0,6)">
-    <v-col :key="now.index" cols="md-4">
+  <v-row  v-if="checkPop !== undefined">
+  <template v-for="pop in checkPop">
+    <v-col :key="pop.index" cols="md-4" v-if="pop.backdrop_path !== null">
       <template>
     <v-hover v-slot:default="{ hover }">
   <v-card class="movieCard ml-2 mr-2" max-width="500">
-    <v-img class="hover" :src=getSmallImgUrl(now.backdrop_path)>
+    <v-img class="hover" :src=getSmallImgUrl(pop.backdrop_path)>
   <v-expand-transition>
           <div
             v-if="hover"
             class="transition-slow-in-slow-out grey darken-2 v-card--reveal display-3 white--text"
             style="height: 100%;"
           >
-           <h6 class="cardtitle">{{now.title}}</h6>
+           <h6 class="cardtitle">{{pop.title}}</h6>
            <div class="genrechip d-flex">
-              <template v-for="gen in now.genre_ids">
+              <template v-for="gen in pop.genre_ids">
                 <div v-if="genre.data !== undefined" :key="gen.index">
                   <template v-for="match in genre.data.genres">
                     <v-btn class="gen type pl-1" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-btn>
@@ -99,11 +43,11 @@
            <div class="rate d-flex">
            <template>
            <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
-           <h6>{{now.vote_average}}</h6>
+           <h6>{{pop.vote_average}}</h6>
          </template>
           </div>
             <div class="information ma-1">
-              <v-btn @click="toggle(now)" color="primary">More information</v-btn>
+              <v-btn @click="toggle(pop)" color="primary">More information</v-btn>
             </div>
           </div>
   </v-expand-transition>
@@ -113,15 +57,15 @@
     <div>
     <v-overlay
           opacity="0.7"
-          v-if="now.video"
+          v-if="pop.video"
           z-index="5"
         >
         <v-card class="d-flex" color="white" height="750" max-width="1500">
-          <v-img :src=getSmallImgUrl(now.poster_path) max-width="500" max-height="750"></v-img>
+          <v-img :src=getSmallImgUrl(pop.poster_path) max-width="500" max-height="750"></v-img>
           <div>
-            <v-card-title class="overlaytitle display-4 font-weight-bold">{{now.title}}</v-card-title>
+            <v-card-title class="overlaytitle display-4 font-weight-bold">{{pop.title}}</v-card-title>
             <div class="d-flex">
-                <template v-for="gen in now.genre_ids">
+                <template v-for="gen in pop.genre_ids">
                   <div v-if="genre.data !== undefined" :key="gen.index">
                     <template v-for="match in genre.data.genres">
                       <v-chip class="ma-2" elevation="24" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-chip>
@@ -135,32 +79,32 @@
                 <div class="point ma-6 d-flex">
                   <template>
                     <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
-                    <h1 class="orange--text">{{now.vote_average}}</h1>
-                    <h2 class="pt-1 black--text">({{now.vote_count}} votes)</h2>
+                    <h1 class="orange--text">{{pop.vote_average}}</h1>
+                    <h2 class="pt-1 black--text">({{pop.vote_count}} votes)</h2>
                   </template>
                 </div>
                 <div class="ma-6 d-flex">
                   <template>
                     <v-btn x-large color="red" icon><v-icon>{{mdiFire}}</v-icon></v-btn>
-                    <h1 class="amber--text">{{now.popularity}}</h1>
+                    <h1 class="amber--text">{{pop.popularity}}</h1>
                   </template>
                 </div>
                 <div class="date ma-6 d-flex">
                   <template>
                     <v-btn x-large color="blue" icon><v-icon>{{mdiDate}}</v-icon></v-btn>
-                    <h1 class="teal--text">{{now.release_date}}</h1>
+                    <h1 class="teal--text">{{pop.release_date}}</h1>
                   </template>
                 </div>
               </v-sheet>
            <template>
-            <p class="overview headline pa-2">{{now.overview}}</p>
+            <p class="overview headline pa-2">{{pop.overview}}</p>
           </template>
           <div class="addbtn ma-2">
             <v-btn
               icon
               x-large
-              @click=operateMovie(now,now.id,now.title,now.popularity,now.overview,now.release_date,now.vote_average,now.vote_count,now.genre_ids,now.backdrop_path,now.poster_path)
-              v-bind:class="[now.collect? col:notcol]"
+              @click=operateFav(pop,pop.id,pop.title,pop.popularity,pop.overview,pop.release_date,pop.vote_average,pop.vote_count,pop.genre_ids,pop.backdrop_path,pop.poster_path)
+              v-bind:class="[pop.collect? col:notcol]"
             >
               <v-icon>{{mdiAdd}}</v-icon>
             </v-btn>
@@ -170,7 +114,7 @@
               color="primary"
               icon
               x-large
-              @click="now.video = false"
+              @click="pop.video = false"
             >
               <v-icon>{{mdiClose}}</v-icon>
             </v-btn>
@@ -184,71 +128,137 @@
   </template>
   </v-row>
 </v-container>
-  </v-container>
+<div class="text-center">
+    <v-pagination
+      v-model= "page"
+      :length= "500"
+      :total-visible= 10
+      value
+    ></v-pagination>
+</div>
+    </v-container>
 </template>
 
 <script>
-// @ is an alias to /src
-import { getCookie } from '../assets/js/cookie'
 import { mdiFire, mdiCalendarRange, mdiAccountHeart, mdiCloseOctagon } from '@mdi/js'
+import { getCookie, delCookie } from '../assets/js/cookie'
+import global from '../components/Global'
 export default {
-  name: 'Home',
-  components: {
-  },
   data () {
     return {
-      carousel: [],
-      genre: [],
+      checkPop: [],
       likeList: [],
-      checkCarousel: [],
-      checkNow: [],
-      showHint: false,
-      timeout: 6000,
+      genre: [],
+      name: '',
       col: 'red',
       notcol: 'grey',
       color: '',
       hint: '',
-      name: '',
+      showHint: false,
+      timeout: 1000,
+      reqPage: '',
+      page: 1,
       mdiFire: mdiFire,
       mdiDate: mdiCalendarRange,
       mdiAdd: mdiAccountHeart,
       mdiClose: mdiCloseOctagon
     }
   },
+  watch: {
+    page (newVal, oldVal) {
+      global.popPage = newVal
+      this.newPage(global.popPage)
+      console.log(newVal, oldVal, global.popPage)
+    }
+  },
+  mounted () {
+    if (global.popPage === '') {
+      this.page = global.popPage
+      this.reqPage = 'https://api.themoviedb.org/3/movie/popular?api_key=429233d493668f762d684c920d9ceafc&page=1'
+    } else {
+      this.page = global.popPage
+      this.reqPage = 'https://api.themoviedb.org/3/movie/popular?api_key=429233d493668f762d684c920d9ceafc&page=' + global.popPage
+    }
+    console.log(global.popPage)
+    const uname = getCookie('username')
+    this.name = uname
+    console.log(uname)
+    this.$axios.post('api/likelist', { username: this.name })
+      .then(like => {
+        this.likeList = like
+        console.log(this.likeList)
+        if (like.data === 0) {
+          console.log('likeList is empty')
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
+    this.$axios.get('https://api.themoviedb.org/3/genre/movie/list?api_key=429233d493668f762d684c920d9ceafc')
+      .then(genre => {
+        this.genre = genre
+      })
+      .catch(err => {
+        console.error(err)
+      })
+    this.$axios.get(this.reqPage)
+      .then(pop => {
+        var jsonObj = JSON.parse(JSON.stringify(pop.data.results))
+        console.log('before add' + JSON.stringify(jsonObj))
+        if (this.name !== '') {
+          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+          console.log(JSON.stringify(likeObj))
+          for (var i = 0; i < jsonObj.length; i++) {
+            for (var j = 0; j < likeObj.length; j++) {
+              if (jsonObj[i].id === likeObj[j].movieid) {
+                jsonObj[i].collect = true
+              }
+            }
+            if (jsonObj[i].collect === undefined) {
+              jsonObj[i].collect = false
+            }
+          }
+        }
+        this.checkPop = jsonObj
+        console.log('after added：' + JSON.stringify(this.checkPop))
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  },
   methods: {
+    newPage (num) {
+      this.reqPage = 'https://api.themoviedb.org/3/movie/popular?api_key=429233d493668f762d684c920d9ceafc&page=' + num
+      this.$axios.get(this.reqPage)
+        .then(pop => {
+          var jsonObj = JSON.parse(JSON.stringify(pop.data.results))
+          console.log('before add' + JSON.stringify(jsonObj))
+          if (this.name !== '') {
+            var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+            console.log(JSON.stringify(likeObj))
+            for (var i = 0; i < jsonObj.length; i++) {
+              for (var j = 0; j < likeObj.length; j++) {
+                if (jsonObj[i].id === likeObj[j].movieid) {
+                  jsonObj[i].collect = true
+                }
+              }
+              if (jsonObj[i].collect === undefined) {
+                jsonObj[i].collect = false
+              }
+            }
+          }
+          this.checkPop = jsonObj
+          console.log('after added：' + JSON.stringify(this.checkPop))
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    },
+    quit () {
+      delCookie('username')
+    },
     toggleColoect (item) {
       item.collect = !item.collect
-      // this.$axios.post('api/likelist', { username: this.name })
-      //   .then(updatelike => {
-      //     this.likeList = updatelike
-      //     console.log(this.likeList)
-      //     if (updatelike.data === 0) {
-      //       console.log('There is no data in user likelist')
-      //     }
-      //   })
-      //   .catch(err => {
-      //     console.error(err)
-      //   })
-      // for (var i = 0; i < this.checkCarousel.length; i++) {
-      //   for (var j = 0; j < this.likeList.length; j++) {
-      //     if (this.checkCarousel[i].id === this.likeList[j].movieid) {
-      //       this.checkCarousel[i].collect = true
-      //     }
-      //   }
-      //   if (this.checkCarousel[i].collect !== true) {
-      //     this.checkCarousel[i].collect = false
-      //   }
-      // }
-      // for (var x = 0; x < this.checkNow.slice(0, 6).length; x++) {
-      //   for (var y = 0; y < this.likeList.length; y++) {
-      //     if (this.checkNow[x].id === this.likeList[y].movieid) {
-      //       this.checkNow[x].collect = true
-      //     }
-      //   }
-      //   if (this.checkNow[x].collect !== true) {
-      //     this.checkNow[x].collect = false
-      //   }
-      // }
     },
     toggle (item) {
       item.video = !item.video
@@ -267,7 +277,7 @@ export default {
           console.error(err)
         })
     },
-    operateMovie (item, id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster) {
+    operateFav (item, id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster) {
       var checkname = getCookie('username')
       this.name = checkname
       var titleM = title
@@ -303,8 +313,8 @@ export default {
                 this.hint = ' Collected Successfully'
                 this.color = 'success'
               } else if (resfav.status === 200) {
-                this.addMovie(idM, titleM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
                 this.toggleColoect(item)
+                this.addMovie(idM, titleM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
                 this.showHint = true
                 this.hint = ' Collected Successfully'
                 this.color = 'success'
@@ -332,12 +342,6 @@ export default {
             })
         }
       }
-      console.log(titleM, idM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
-      // return titleM
-    },
-    getImgUrl (end) {
-      var url = 'https://image.tmdb.org/t/p/original' + end
-      return url
     },
     getSmallImgUrl (end) {
       var url = 'https://image.tmdb.org/t/p/w500' + end
@@ -389,82 +393,14 @@ export default {
         return '#FFC107'
       }
     }
-  },
-  mounted () {
-    var uname = getCookie('username')
-    this.name = uname
-    console.log(this.name)
-    this.$axios.post('api/likelist', { username: uname })
-      .then(like => {
-        this.likeList = like
-        console.log(this.likeList)
-        if (like.data === 0) {
-          console.log('operation failed')
-        }
-      })
-      .catch(err => {
-        console.error(err)
-      })
-    this.$axios.get('https://api.themoviedb.org/3/trending/movie/week?api_key=429233d493668f762d684c920d9ceafc')
-      .then(carousel => {
-        var jsonObj = JSON.parse(JSON.stringify(carousel.data.results))
-        // console.log('before add' + JSON.stringify(jsonObj))
-        if (this.name !== '') {
-          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          console.log(JSON.stringify(likeObj))
-          for (var i = 0; i < jsonObj.length; i++) {
-            for (var j = 0; j < likeObj.length; j++) {
-              if (jsonObj[i].id === likeObj[j].movieid) {
-                jsonObj[i].collect = true
-              }
-            }
-            if (jsonObj[i].collect === undefined) {
-              jsonObj[i].collect = false
-            }
-          }
-        }
-        this.checkCarousel = jsonObj
-        // console.log('after added：' + JSON.stringify(this.checkCarousel))
-      })
-      .catch(err => {
-        console.error(err)
-      })
-    this.$axios.get('https://api.themoviedb.org/3/genre/movie/list?api_key=429233d493668f762d684c920d9ceafc')
-      .then(genre => {
-        this.genre = genre
-      })
-      .catch(err => {
-        console.error(err)
-      })
-    this.$axios.get('https://api.themoviedb.org/3/movie/now_playing?api_key=429233d493668f762d684c920d9ceafc')
-      .then(now => {
-        var jsonObj = JSON.parse(JSON.stringify(now.data.results))
-        console.log('before add' + JSON.stringify(jsonObj))
-        if (this.name !== '') {
-          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          console.log(JSON.stringify(likeObj))
-          for (var i = 0; i < jsonObj.length; i++) {
-            for (var j = 0; j < likeObj.length; j++) {
-              if (jsonObj[i].id === likeObj[j].movieid) {
-                jsonObj[i].collect = true
-              }
-            }
-            if (jsonObj[i].collect === undefined) {
-              jsonObj[i].collect = false
-            }
-          }
-        }
-        this.checkNow = jsonObj
-        console.log('after added：' + JSON.stringify(this.checkNow))
-      })
-      .catch(err => {
-        console.error(err)
-      })
   }
 }
 </script>
 
 <style scoped>
+.headtitle{
+  color: #FAFAFA;
+}
 .overlay{
   background: linear-gradient(to top,black,30%,transparent);
 }

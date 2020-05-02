@@ -40,6 +40,11 @@ const routes = [
     path: '/account',
     name: 'Account',
     component: () => import('../views/AccountHome.vue')
+  },
+  {
+    path: '/pop',
+    name: 'Popularity',
+    component: () => import('../views/poplist.vue')
   }
 ]
 
