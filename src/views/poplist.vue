@@ -149,6 +149,7 @@ export default {
       timeout: 1000,
       reqPage: '',
       page: 1,
+      likeObj: '',
       mdiFire: mdiFire,
       mdiDate: mdiCalendarRange,
       mdiAdd: mdiAccountHeart,
