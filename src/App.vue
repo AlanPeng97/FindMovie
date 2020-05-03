@@ -2,6 +2,7 @@
   <v-app>
     <Header/>
   <div id="v-content" v-bind:style="{minHeight: Height+'px'}"><router-view v-if='isRouterAlive'/></div>
+  <BackToTop/>
   <Footer/>
   </v-app>
 </template>
@@ -10,6 +11,7 @@
 // import HelloWorld from './components/HelloWorld'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import BackToTop from './components/BackToTop'
 export default {
   name: 'App',
   provide () {
@@ -22,7 +24,8 @@ export default {
   },
   components: {
     Header,
-    Footer
+    Footer,
+    BackToTop
   },
   data () {
     return {

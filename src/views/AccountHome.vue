@@ -19,7 +19,7 @@
   <h1 class="classify">Your favorite</h1>
   <hr class="divider">
   <div class="text-center">
-  <v-btn v-if="favorite === undefined" to="/" class="ma-2 white--text" color="light-blue" x-large>Choose your favorite</v-btn>
+  <v-btn v-if="favorite === undefined" to="/" class="ma-2 white--text" color="light-blue" x-large>Discover your favorite</v-btn>
   </div>
   <v-row  v-if="favorite !== undefined">
   <template v-for="fav in favorite">
@@ -35,15 +35,6 @@
             style="height: 100%;"
           >
            <h6 class="cardtitle">{{fav.title}}</h6>
-           <div class="genrechip d-flex">
-              <template v-for="gen in fav.genreids">
-                <div v-if="genre.data !== undefined" :key="gen.index">
-                  <template v-for="match in genre.data.genres">
-                    <v-btn class="gen type pl-1" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-btn>
-                  </template>
-                  </div>
-              </template>
-           </div>
            <div class="rate d-flex">
            <template>
            <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
@@ -132,6 +123,114 @@
   </template>
   </v-row>
 </v-container>
+<v-container>
+  <h1 class="classify">Recommend movies</h1>
+  <hr class="divider">
+  <div class="text-center">
+  <v-btn v-if="recommend === undefined" to="/" class="ma-2 white--text" color="amber darken-4" x-large>Collect your favorite</v-btn>
+  </div>
+  <v-row  v-if="recommend !== undefined">
+  <template v-for="rec in recommend">
+    <v-col :key="rec.index" cols="md-4" v-if="rec.backdrop_path !== null">
+      <template>
+    <v-hover v-slot:default="{ hover }">
+  <v-card class="movieCard ml-2 mr-2" max-width="500">
+    <v-img class="hover" :src=getSmallImgUrl(rec.backdrop_path)>
+  <v-expand-transition>
+          <div
+            v-if="hover"
+            class="transition-slow-in-slow-out grey darken-2 v-card--reveal display-3 white--text"
+            style="height: 100%;"
+          >
+           <h6 class="cardtitle">{{rec.title}}</h6>
+           <div class="rate d-flex">
+           <template>
+           <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
+           <h6>{{rec.vote_average}}</h6>
+         </template>
+          </div>
+            <div class="information ma-1">
+              <v-btn @click="toggle(rec)" color="primary">More information</v-btn>
+            </div>
+          </div>
+  </v-expand-transition>
+  </v-img>
+  </v-card>
+    </v-hover>
+    <div>
+    <v-overlay
+          opacity="0.7"
+          v-if="rec.video"
+          z-index="5"
+        >
+        <v-card class="d-flex" color="white" height="750" max-width="1500">
+          <v-img :src=getSmallImgUrl(rec.poster_path) max-width="500" max-height="750"></v-img>
+          <div>
+            <v-card-title class="overlaytitle display-4 font-weight-bold">{{rec.title}}</v-card-title>
+            <div class="d-flex">
+                <template v-for="gen in rec.genre_ids">
+                  <div v-if="genre.data !== undefined" :key="gen.index">
+                    <template v-for="match in genre.data.genres">
+                      <v-chip class="ma-2" elevation="24" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-chip>
+                    </template>
+                  </div>
+                </template>
+            </div>
+              <v-sheet
+              class="ma-4 white d-flex justify-space-around"  height="100" max-width="1000" elevation="24"
+              >
+                <div class="point ma-6 d-flex">
+                  <template>
+                    <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
+                    <h1 class="orange--text">{{rec.vote_average}}</h1>
+                    <h2 class="pt-1 black--text">({{rec.vote_count}} votes)</h2>
+                  </template>
+                </div>
+                <div class="ma-6 d-flex">
+                  <template>
+                    <v-btn x-large color="red" icon><v-icon>{{mdiFire}}</v-icon></v-btn>
+                    <h1 class="amber--text">{{rec.popularity}}</h1>
+                  </template>
+                </div>
+                <div class="date ma-6 d-flex">
+                  <template>
+                    <v-btn x-large color="blue" icon><v-icon>{{mdiDate}}</v-icon></v-btn>
+                    <h1 class="teal--text">{{rec.release_date}}</h1>
+                  </template>
+                </div>
+              </v-sheet>
+           <template>
+            <p class="overview headline pa-2">{{rec.overview}}</p>
+          </template>
+          <div class="addbtn ma-2">
+            <v-btn
+              icon
+              x-large
+              @click=operateRec(rec,rec.id,rec.title,rec.popularity,rec.overview,rec.release_date,rec.vote_average,rec.vote_count,rec.genre_ids,rec.backdrop_path,rec.poster_path)
+              v-bind:class="[rec.collect? col:notcol]"
+            >
+              <v-icon>{{mdiAdd}}</v-icon>
+            </v-btn>
+          </div>
+          <div class="hidebtn ma-2">
+            <v-btn
+              color="primary"
+              icon
+              x-large
+              @click="rec.video = false"
+            >
+              <v-icon>{{mdiClose}}</v-icon>
+            </v-btn>
+          </div>
+          </div>
+          </v-card>
+        </v-overlay>
+        </div>
+    </template>
+    </v-col>
+  </template>
+  </v-row>
+</v-container>
     </v-container>
 </template>
 
@@ -142,6 +241,7 @@ export default {
   data () {
     return {
       favorite: [],
+      recommend: [],
       likeList: [],
       genre: [],
       name: '',
@@ -151,6 +251,8 @@ export default {
       hint: '',
       showHint: false,
       timeout: 6000,
+      likeObj: '',
+      req: '',
       mdiFire: mdiFire,
       mdiDate: mdiCalendarRange,
       mdiAdd: mdiAccountHeart,
@@ -168,8 +270,40 @@ export default {
       .then(like => {
         this.likeList = like
         console.log(this.likeList)
+        if (like.data !== 0) {
+          this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+          var scope = this.likeObj.length
+          var randomIndex = Math.floor(Math.random() * scope)
+          var randomId = this.likeObj[randomIndex].movieid
+          console.log(randomId)
+          this.req = 'https://api.themoviedb.org/3/movie/' + randomId + '/similar?api_key=429233d493668f762d684c920d9ceafc&page=1'
+          console.log(this.req)
+          this.$axios.get(this.req)
+            .then(rec => {
+              var jsonObj = JSON.parse(JSON.stringify(rec.data.results))
+              console.log('before add' + JSON.stringify(jsonObj))
+              if (this.name !== '') {
+                for (var i = 0; i < jsonObj.length; i++) {
+                  for (var j = 0; j < this.likeObj.length; j++) {
+                    if (jsonObj[i].id === this.likeObj[j].movieid) {
+                      jsonObj[i].collect = true
+                    }
+                  }
+                  if (jsonObj[i].collect === undefined) {
+                    jsonObj[i].collect = false
+                  }
+                }
+              }
+              this.recommend = jsonObj
+              console.log('after added：' + JSON.stringify(this.recommend))
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
         if (like.data === 0) {
           console.log('likeList is empty')
+          this.recommend = undefined
         }
       })
       .catch(err => {
@@ -180,11 +314,9 @@ export default {
         // console.log('before add' + JSON.stringify(jsonObj))
         if (this.name !== '' && fav.data !== 0 && this.likeList.data !== 0) {
           var jsonObj = JSON.parse(JSON.stringify(fav.data))
-          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          console.log(JSON.stringify(likeObj))
           for (var i = 0; i < jsonObj.length; i++) {
-            for (var j = 0; j < likeObj.length; j++) {
-              if (jsonObj[i].id === likeObj[j].movieid) {
+            for (var j = 0; j < this.likeObj.length; j++) {
+              if (jsonObj[i].id === this.likeObj[j].movieid) {
                 jsonObj[i].collect = true
               }
             }
@@ -195,7 +327,6 @@ export default {
           }
         }
         this.favorite = jsonObj
-        console.log('after added：' + JSON.stringify(this.favorite))
       })
       .catch(err => {
         console.error(err)
@@ -218,20 +349,6 @@ export default {
     toggle (item) {
       item.video = !item.video
     },
-    // addMovie (id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster, video) {
-    //   this.$axios.post('api/addmov', { id: id, title: title, popularity: pop, overview: overview, date: date, vote: vote, votecount: votecount, genreids: genreids, backdrop: backdrop, poster: poster, video: video })
-    //     .then(resMov => {
-    //       console.log(resMov)
-    //       if (resMov.data === 0) {
-    //         console.log('The information of movie is already in the database')
-    //       } else if (resMov.status === 200) {
-    //         console.log('The information of movie has added into DB')
-    //       }
-    //     })
-    //     .catch(err => {
-    //       console.error(err)
-    //     })
-    // },
     operateFav (item, id) {
       var idM = id
       var checkname = getCookie('username')
@@ -285,6 +402,93 @@ export default {
             })
         }
       }
+    },
+    addMovie (id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster, video) {
+      this.$axios.post('api/addmov', { id: id, title: title, popularity: pop, overview: overview, date: date, vote: vote, votecount: votecount, genreids: genreids, backdrop: backdrop, poster: poster, video: video })
+        .then(resMov => {
+          console.log(resMov)
+          if (resMov.data === 0) {
+            console.log('The information of movie is already in the database')
+          } else if (resMov.status === 200) {
+            console.log('The information of movie has added into DB')
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    },
+    operateRec (item, id, title, pop, overview, date, vote, votecount, genreids, backdrop, poster) {
+      var checkname = getCookie('username')
+      this.name = checkname
+      var titleM = title
+      var idM = id
+      var popM = pop
+      var overviewM = overview
+      var dateM = date
+      var voteM = this.stringToNum(vote)
+      var genreidsM = JSON.stringify(genreids)
+      var votecountM = votecount
+      var backdropM = this.getSmallImgUrl(backdrop)
+      var posterM = this.getSmallImgUrl(poster)
+      var videoM = false
+      var uname = this.name
+      if (uname === '') {
+        this.showHint = true
+        this.hint = 'Please login'
+        this.color = 'amber'
+        setTimeout(function () {
+          this.$router.push({ path: '/login' })
+          this.showHint = false
+        }.bind(this), 1000)
+      } else {
+        if (item.collect === false) {
+          this.$axios.post('api/addfav', { movieid: idM, username: this.name })
+            .then(resfav => {
+              console.log(resfav)
+              if (resfav.data === -1) {
+                console.log('The information of like is already in the database')
+                this.addMovie(idM, titleM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
+                this.toggleColoect(item)
+                this.showHint = true
+                this.hint = ' Collected Successfully'
+                this.color = 'success'
+              } else if (resfav.status === 200) {
+                this.toggleColoect(item)
+                this.addMovie(idM, titleM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
+                this.showHint = true
+                this.hint = ' Collected Successfully'
+                this.color = 'success'
+              }
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        } else if (item.collect === true) {
+          this.$axios.post('api/delLike', { movieid: idM, username: this.name })
+            .then(delres => {
+              console.log(delres)
+              if (delres.data === 0) {
+                console.log('object does not in the DB')
+                this.toggleColoect(item)
+              } else {
+                this.showHint = true
+                this.hint = 'Deleted Successfully'
+                this.color = 'orange'
+                this.toggleColoect(item)
+              }
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
+      }
+    },
+    getSmallImgUrl (end) {
+      var url = 'https://image.tmdb.org/t/p/w500' + end
+      return url
+    },
+    stringToNum (string) {
+      return parseFloat(string)
     },
     setColor (type) {
       if (type === 'Action') {

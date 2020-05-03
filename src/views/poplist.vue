@@ -31,15 +31,6 @@
             style="height: 100%;"
           >
            <h6 class="cardtitle">{{pop.title}}</h6>
-           <div class="genrechip d-flex">
-              <template v-for="gen in pop.genre_ids">
-                <div v-if="genre.data !== undefined" :key="gen.index">
-                  <template v-for="match in genre.data.genres">
-                    <v-btn class="gen type pl-1" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-btn>
-                  </template>
-                  </div>
-              </template>
-           </div>
            <div class="rate d-flex">
            <template>
            <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
@@ -133,7 +124,7 @@
       v-model= "page"
       :length= "500"
       :total-visible= 10
-      value
+      value= 0
     ></v-pagination>
 </div>
     </v-container>
@@ -168,6 +159,7 @@ export default {
     page (newVal, oldVal) {
       global.popPage = newVal
       this.newPage(global.popPage)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       console.log(newVal, oldVal, global.popPage)
     }
   },
@@ -187,6 +179,7 @@ export default {
       .then(like => {
         this.likeList = like
         console.log(this.likeList)
+        this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
         if (like.data === 0) {
           console.log('likeList is empty')
         }
@@ -205,18 +198,14 @@ export default {
       .then(pop => {
         var jsonObj = JSON.parse(JSON.stringify(pop.data.results))
         console.log('before add' + JSON.stringify(jsonObj))
-        if (this.name !== '') {
-          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          console.log(JSON.stringify(likeObj))
-          for (var i = 0; i < jsonObj.length; i++) {
-            for (var j = 0; j < likeObj.length; j++) {
-              if (jsonObj[i].id === likeObj[j].movieid) {
-                jsonObj[i].collect = true
-              }
+        for (var i = 0; i < jsonObj.length; i++) {
+          for (var j = 0; j < this.likeObj.length; j++) {
+            if (jsonObj[i].id === this.likeObj[j].movieid) {
+              jsonObj[i].collect = true
             }
-            if (jsonObj[i].collect === undefined) {
-              jsonObj[i].collect = false
-            }
+          }
+          if (jsonObj[i].collect === undefined) {
+            jsonObj[i].collect = false
           }
         }
         this.checkPop = jsonObj
@@ -228,17 +217,27 @@ export default {
   },
   methods: {
     newPage (num) {
+      this.$axios.post('api/likelist', { username: this.name })
+        .then(like => {
+          this.likeList = like
+          console.log(this.likeList)
+          this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+          if (like.data === 0) {
+            console.log('likeList is empty')
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
       this.reqPage = 'https://api.themoviedb.org/3/movie/popular?api_key=429233d493668f762d684c920d9ceafc&page=' + num
       this.$axios.get(this.reqPage)
         .then(pop => {
           var jsonObj = JSON.parse(JSON.stringify(pop.data.results))
           console.log('before add' + JSON.stringify(jsonObj))
           if (this.name !== '') {
-            var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-            console.log(JSON.stringify(likeObj))
             for (var i = 0; i < jsonObj.length; i++) {
-              for (var j = 0; j < likeObj.length; j++) {
-                if (jsonObj[i].id === likeObj[j].movieid) {
+              for (var j = 0; j < this.likeObj.length; j++) {
+                if (jsonObj[i].id === this.likeObj[j].movieid) {
                   jsonObj[i].collect = true
                 }
               }

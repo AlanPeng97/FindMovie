@@ -1,6 +1,6 @@
 <script>
 const searchName = ''
-const popPage = ''
+const popPage = 1
 export default {
   searchName,
   popPage

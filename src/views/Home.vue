@@ -87,15 +87,6 @@
             style="height: 100%;"
           >
            <h6 class="cardtitle">{{now.title}}</h6>
-           <div class="genrechip d-flex">
-              <template v-for="gen in now.genre_ids">
-                <div v-if="genre.data !== undefined" :key="gen.index">
-                  <template v-for="match in genre.data.genres">
-                    <v-btn class="gen type pl-1" v-if="gen==match.id" :color=setColor(match.name) :key="match.index">{{match.name}}</v-btn>
-                  </template>
-                  </div>
-              </template>
-           </div>
            <div class="rate d-flex">
            <template>
            <v-btn x-large color="red" icon><v-icon>mdi-heart</v-icon></v-btn>
@@ -218,37 +209,6 @@ export default {
   methods: {
     toggleColoect (item) {
       item.collect = !item.collect
-      // this.$axios.post('api/likelist', { username: this.name })
-      //   .then(updatelike => {
-      //     this.likeList = updatelike
-      //     console.log(this.likeList)
-      //     if (updatelike.data === 0) {
-      //       console.log('There is no data in user likelist')
-      //     }
-      //   })
-      //   .catch(err => {
-      //     console.error(err)
-      //   })
-      // for (var i = 0; i < this.checkCarousel.length; i++) {
-      //   for (var j = 0; j < this.likeList.length; j++) {
-      //     if (this.checkCarousel[i].id === this.likeList[j].movieid) {
-      //       this.checkCarousel[i].collect = true
-      //     }
-      //   }
-      //   if (this.checkCarousel[i].collect !== true) {
-      //     this.checkCarousel[i].collect = false
-      //   }
-      // }
-      // for (var x = 0; x < this.checkNow.slice(0, 6).length; x++) {
-      //   for (var y = 0; y < this.likeList.length; y++) {
-      //     if (this.checkNow[x].id === this.likeList[y].movieid) {
-      //       this.checkNow[x].collect = true
-      //     }
-      //   }
-      //   if (this.checkNow[x].collect !== true) {
-      //     this.checkNow[x].collect = false
-      //   }
-      // }
     },
     toggle (item) {
       item.video = !item.video
