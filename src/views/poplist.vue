@@ -178,10 +178,11 @@ export default {
     console.log(uname)
     this.$axios.post('api/likelist', { username: this.name })
       .then(like => {
-        this.likeList = like
-        console.log(this.likeList)
-        this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-        if (like.data === 0) {
+        if (like.data !== 0) {
+          this.likeList = like
+          console.log(this.likeList)
+          this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+        } else if (like.data === 0) {
           console.log('likeList is empty')
         }
       })

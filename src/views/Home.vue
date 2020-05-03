@@ -200,6 +200,7 @@ export default {
       color: '',
       hint: '',
       name: '',
+      likeObj: '',
       mdiFire: mdiFire,
       mdiDate: mdiCalendarRange,
       mdiAdd: mdiAccountHeart,
@@ -356,10 +357,12 @@ export default {
     console.log(this.name)
     this.$axios.post('api/likelist', { username: uname })
       .then(like => {
-        this.likeList = like
-        console.log(this.likeList)
-        if (like.data === 0) {
-          console.log('operation failed')
+        if (like.data !== 0) {
+          this.likeList = like
+          console.log(this.likeList)
+          this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+        } else if (like.data === 0) {
+          console.log('likeList is empty')
         }
       })
       .catch(err => {
@@ -370,11 +373,9 @@ export default {
         var jsonObj = JSON.parse(JSON.stringify(carousel.data.results))
         // console.log('before add' + JSON.stringify(jsonObj))
         if (this.name !== '') {
-          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          console.log(JSON.stringify(likeObj))
           for (var i = 0; i < jsonObj.length; i++) {
-            for (var j = 0; j < likeObj.length; j++) {
-              if (jsonObj[i].id === likeObj[j].movieid) {
+            for (var j = 0; j < this.likeObj.length; j++) {
+              if (jsonObj[i].id === this.likeObj[j].movieid) {
                 jsonObj[i].collect = true
               }
             }
@@ -401,11 +402,9 @@ export default {
         var jsonObj = JSON.parse(JSON.stringify(now.data.results))
         console.log('before add' + JSON.stringify(jsonObj))
         if (this.name !== '') {
-          var likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          console.log(JSON.stringify(likeObj))
           for (var i = 0; i < jsonObj.length; i++) {
-            for (var j = 0; j < likeObj.length; j++) {
-              if (jsonObj[i].id === likeObj[j].movieid) {
+            for (var j = 0; j < this.likeObj.length; j++) {
+              if (jsonObj[i].id === this.likeObj[j].movieid) {
                 jsonObj[i].collect = true
               }
             }
