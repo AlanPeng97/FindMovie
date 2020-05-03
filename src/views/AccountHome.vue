@@ -125,6 +125,7 @@
 </v-container>
 <v-container>
   <h1 class="classify">Recommend movies</h1>
+  <v-btn v-if="recommend !== undefined" class="ma-2 white--text" color="red darken-1" @click=changeRec(randomId) large>Replace recommend movies</v-btn>
   <hr class="divider">
   <div class="text-center">
   <v-btn v-if="recommend === undefined" to="/" class="ma-2 white--text" color="amber darken-4" x-large>Collect your favorite</v-btn>
@@ -252,85 +253,91 @@ export default {
       showHint: false,
       timeout: 6000,
       likeObj: '',
-      req: '',
+      randomId: '',
       mdiFire: mdiFire,
       mdiDate: mdiCalendarRange,
       mdiAdd: mdiAccountHeart,
       mdiClose: mdiCloseOctagon
     }
   },
-  mounted () {
-    const uname = getCookie('username')
-    this.name = uname
-    console.log(uname)
-    if (uname === '') {
-      this.$router.push({ path: '/login' })
+  watch: {
+    likeList () {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-    this.$axios.post('api/likelist', { username: this.name })
-      .then(like => {
-        this.likeList = like
-        console.log(this.likeList)
-        if (like.data !== 0) {
-          this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
-          var scope = this.likeObj.length
-          var randomIndex = Math.floor(Math.random() * scope)
-          var randomId = this.likeObj[randomIndex].movieid
-          console.log(randomId)
-          this.req = 'https://api.themoviedb.org/3/movie/' + randomId + '/similar?api_key=429233d493668f762d684c920d9ceafc&page=1'
-          console.log(this.req)
-          this.$axios.get(this.req)
-            .then(rec => {
-              var jsonObj = JSON.parse(JSON.stringify(rec.data.results))
-              console.log('before add' + JSON.stringify(jsonObj))
-              if (this.name !== '') {
-                for (var i = 0; i < jsonObj.length; i++) {
-                  for (var j = 0; j < this.likeObj.length; j++) {
-                    if (jsonObj[i].id === this.likeObj[j].movieid) {
-                      jsonObj[i].collect = true
-                    }
-                  }
-                  if (jsonObj[i].collect === undefined) {
-                    jsonObj[i].collect = false
-                  }
-                }
-              }
-              this.recommend = jsonObj
-              console.log('after added：' + JSON.stringify(this.recommend))
-            })
-            .catch(err => {
-              console.error(err)
-            })
-        }
-        if (like.data === 0) {
-          console.log('likeList is empty')
-          this.recommend = undefined
-        }
-      })
-      .catch(err => {
-        console.error(err)
-      })
-    this.$axios.post('api/showlike', { username: this.name })
-      .then(fav => {
-        // console.log('before add' + JSON.stringify(jsonObj))
-        if (this.name !== '' && fav.data !== 0 && this.likeList.data !== 0) {
-          var jsonObj = JSON.parse(JSON.stringify(fav.data))
-          for (var i = 0; i < jsonObj.length; i++) {
-            for (var j = 0; j < this.likeObj.length; j++) {
-              if (jsonObj[i].id === this.likeObj[j].movieid) {
-                jsonObj[i].collect = true
-              }
-            }
-            if (jsonObj[i].collect === undefined) {
-              jsonObj[i].collect = false
-            }
-            jsonObj[i].genreids = JSON.parse(jsonObj[i].genreids)
-          }
-        }
-        this.favorite = jsonObj
-      })
-      .catch(err => {
-        console.error(err)
-      })
+  },
+  mounted () {
+    this.updateList()
+    // const uname = getCookie('username')
+    // this.name = uname
+    // console.log(uname)
+    // if (uname === '') {
+    //   this.$router.push({ path: '/login' })
+    // }
+    // this.$axios.post('api/likelist', { username: this.name })
+    //   .then(like => {
+    //     this.likeList = like
+    //     console.log(this.likeList)
+    //     if (like.data !== 0) {
+    //       this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+    //       var scope = this.likeObj.length
+    //       var randomIndex = Math.floor(Math.random() * scope)
+    //       var randomId = this.likeObj[randomIndex].movieid
+    //       console.log(randomId)
+    //       var req = 'https://api.themoviedb.org/3/movie/' + randomId + '/similar?api_key=429233d493668f762d684c920d9ceafc&page=1'
+    //       console.log(req)
+    //       this.$axios.get(req)
+    //         .then(rec => {
+    //           var jsonObj = JSON.parse(JSON.stringify(rec.data.results))
+    //           console.log('before add' + JSON.stringify(jsonObj))
+    //           if (this.name !== '') {
+    //             for (var i = 0; i < jsonObj.length; i++) {
+    //               for (var j = 0; j < this.likeObj.length; j++) {
+    //                 if (jsonObj[i].id === this.likeObj[j].movieid) {
+    //                   jsonObj[i].collect = true
+    //                 }
+    //               }
+    //               if (jsonObj[i].collect === undefined) {
+    //                 jsonObj[i].collect = false
+    //               }
+    //             }
+    //           }
+    //           this.recommend = jsonObj
+    //           console.log('after added：' + JSON.stringify(this.recommend))
+    //         })
+    //         .catch(err => {
+    //           console.error(err)
+    //         })
+    //     }
+    //     if (like.data === 0) {
+    //       console.log('likeList is empty')
+    //       this.recommend = undefined
+    //     }
+    //   })
+    //   .catch(err => {
+    //     console.error(err)
+    //   })
+    // this.$axios.post('api/showlike', { username: this.name })
+    //   .then(fav => {
+    //     // console.log('before add' + JSON.stringify(jsonObj))
+    //     if (this.name !== '' && fav.data !== 0 && this.likeList.data !== 0) {
+    //       var jsonObj = JSON.parse(JSON.stringify(fav.data))
+    //       for (var i = 0; i < jsonObj.length; i++) {
+    //         for (var j = 0; j < this.likeObj.length; j++) {
+    //           if (jsonObj[i].id === this.likeObj[j].movieid) {
+    //             jsonObj[i].collect = true
+    //           }
+    //         }
+    //         if (jsonObj[i].collect === undefined) {
+    //           jsonObj[i].collect = false
+    //         }
+    //         jsonObj[i].genreids = JSON.parse(jsonObj[i].genreids)
+    //       }
+    //     }
+    //     this.favorite = jsonObj
+    //   })
+    //   .catch(err => {
+    //     console.error(err)
+    //   })
     this.$axios.get('https://api.themoviedb.org/3/genre/movie/list?api_key=429233d493668f762d684c920d9ceafc')
       .then(genre => {
         this.genre = genre
@@ -348,6 +355,190 @@ export default {
     },
     toggle (item) {
       item.video = !item.video
+    },
+    changeRec (oldId) {
+      console.log(oldId)
+      const uname = getCookie('username')
+      this.name = uname
+      console.log(uname)
+      if (uname === '') {
+        this.$router.push({ path: '/login' })
+      } else {
+        this.$axios.post('api/likelist', { username: this.name })
+          .then(like => {
+            this.likeList = like
+            console.log(this.likeList)
+            if (like.data !== 0) {
+              this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+              // var scope = this.likeObj.length
+              // var randomIndex = Math.floor(Math.random() * scope)
+              // this.randomId = this.likeObj[randomIndex].movieid
+              var next = 0
+              for (var x = 0; x < this.likeObj.length; x++) {
+                if (oldId === this.likeObj[x].movieid) {
+                  if (x === this.likeObj.length - 1) {
+                    next = 0
+                    this.randomId = this.likeObj[next].movieid
+                  } else {
+                    next = x + 1
+                    this.randomId = this.likeObj[next].movieid
+                  }
+                }
+              }
+              console.log(this.randomId)
+              var req = 'https://api.themoviedb.org/3/movie/' + this.randomId + '/similar?api_key=429233d493668f762d684c920d9ceafc&page=1'
+              console.log(req)
+              this.$axios.get(req)
+                .then(rec => {
+                  var jsonObj = JSON.parse(JSON.stringify(rec.data.results))
+                  // console.log('before add' + JSON.stringify(jsonObj))
+                  if (this.name !== '') {
+                    for (var i = 0; i < jsonObj.length; i++) {
+                      for (var j = 0; j < this.likeObj.length; j++) {
+                        if (jsonObj[i].id === this.likeObj[j].movieid) {
+                          jsonObj[i].collect = true
+                        }
+                      }
+                      if (jsonObj[i].collect === undefined) {
+                        jsonObj[i].collect = false
+                      }
+                    }
+                  }
+                  this.recommend = jsonObj
+                // console.log('after added：' + JSON.stringify(this.recommend))
+                })
+                .catch(err => {
+                  console.error(err)
+                })
+            }
+            if (like.data === 0) {
+              console.log('likeList is empty')
+              this.recommend = undefined
+            }
+          })
+          .catch(err => {
+            console.error(err)
+          })
+      }
+    },
+    updateLike () {
+      const uname = getCookie('username')
+      this.name = uname
+      console.log(uname)
+      if (uname === '') {
+        this.$router.push({ path: '/login' })
+      }
+      this.$axios.post('api/likelist', { username: this.name })
+        .then(like => {
+          this.likeList = like
+          console.log(this.likeList)
+          if (like.data !== 0) {
+            this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+          }
+          if (like.data === 0) {
+            console.log('likeList is empty')
+            this.recommend = undefined
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
+      this.$axios.post('api/showlike', { username: this.name })
+        .then(fav => {
+          // console.log('before add' + JSON.stringify(jsonObj))
+          if (this.name !== '' && fav.data !== 0 && this.likeList.data !== 0) {
+            var jsonObj = JSON.parse(JSON.stringify(fav.data))
+            for (var i = 0; i < jsonObj.length; i++) {
+              for (var j = 0; j < this.likeObj.length; j++) {
+                if (jsonObj[i].id === this.likeObj[j].movieid) {
+                  jsonObj[i].collect = true
+                }
+              }
+              if (jsonObj[i].collect === undefined) {
+                jsonObj[i].collect = false
+              }
+              jsonObj[i].genreids = JSON.parse(jsonObj[i].genreids)
+            }
+          }
+          this.favorite = jsonObj
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    },
+    updateList () {
+      const uname = getCookie('username')
+      this.name = uname
+      console.log(uname)
+      if (uname === '') {
+        this.$router.push({ path: '/login' })
+      } else {
+        this.$axios.post('api/likelist', { username: this.name })
+          .then(like => {
+            this.likeList = like
+            console.log(this.likeList)
+            if (like.data !== 0) {
+              this.likeObj = JSON.parse(JSON.stringify(this.likeList.data))
+              var scope = this.likeObj.length
+              var randomIndex = Math.floor(Math.random() * scope)
+              this.randomId = this.likeObj[randomIndex].movieid
+              console.log(this.randomId)
+              var req = 'https://api.themoviedb.org/3/movie/' + this.randomId + '/similar?api_key=429233d493668f762d684c920d9ceafc&page=1'
+              console.log(req)
+              this.$axios.get(req)
+                .then(rec => {
+                  var jsonObj = JSON.parse(JSON.stringify(rec.data.results))
+                  // console.log('before add' + JSON.stringify(jsonObj))
+                  if (this.name !== '') {
+                    for (var i = 0; i < jsonObj.length; i++) {
+                      for (var j = 0; j < this.likeObj.length; j++) {
+                        if (jsonObj[i].id === this.likeObj[j].movieid) {
+                          jsonObj[i].collect = true
+                        }
+                      }
+                      if (jsonObj[i].collect === undefined) {
+                        jsonObj[i].collect = false
+                      }
+                    }
+                  }
+                  this.recommend = jsonObj
+                // console.log('after added：' + JSON.stringify(this.recommend))
+                })
+                .catch(err => {
+                  console.error(err)
+                })
+            }
+            if (like.data === 0) {
+              console.log('likeList is empty')
+              this.recommend = undefined
+            }
+          })
+          .catch(err => {
+            console.error(err)
+          })
+      }
+      this.$axios.post('api/showlike', { username: this.name })
+        .then(fav => {
+          // console.log('before add' + JSON.stringify(jsonObj))
+          if (this.name !== '' && fav.data !== 0 && this.likeList.data !== 0) {
+            var jsonObj = JSON.parse(JSON.stringify(fav.data))
+            for (var i = 0; i < jsonObj.length; i++) {
+              for (var j = 0; j < this.likeObj.length; j++) {
+                if (jsonObj[i].id === this.likeObj[j].movieid) {
+                  jsonObj[i].collect = true
+                }
+              }
+              if (jsonObj[i].collect === undefined) {
+                jsonObj[i].collect = false
+              }
+              jsonObj[i].genreids = JSON.parse(jsonObj[i].genreids)
+            }
+          }
+          this.favorite = jsonObj
+        })
+        .catch(err => {
+          console.error(err)
+        })
     },
     operateFav (item, id) {
       var idM = id
@@ -373,11 +564,13 @@ export default {
                 this.showHint = true
                 this.hint = ' Collected Successfully'
                 this.color = 'success'
+                this.updateList()
               } else if (resfav.status === 200) {
                 this.toggleColoect(item)
                 this.showHint = true
                 this.hint = ' Collected Successfully'
                 this.color = 'success'
+                this.updateList()
               }
             })
             .catch(err => {
@@ -390,11 +583,13 @@ export default {
               if (delres.data === 0) {
                 console.log('object does not in the DB')
                 this.toggleColoect(item)
+                this.updateList()
               } else {
                 this.showHint = true
                 this.hint = 'Deleted Successfully'
                 this.color = 'orange'
                 this.toggleColoect(item)
+                this.updateList()
               }
             })
             .catch(err => {
@@ -452,12 +647,14 @@ export default {
                 this.showHint = true
                 this.hint = ' Collected Successfully'
                 this.color = 'success'
+                this.updateLike()
               } else if (resfav.status === 200) {
                 this.toggleColoect(item)
                 this.addMovie(idM, titleM, popM, overviewM, dateM, voteM, votecountM, genreidsM, backdropM, posterM, videoM)
                 this.showHint = true
                 this.hint = ' Collected Successfully'
                 this.color = 'success'
+                this.updateLike()
               }
             })
             .catch(err => {
@@ -470,11 +667,13 @@ export default {
               if (delres.data === 0) {
                 console.log('object does not in the DB')
                 this.toggleColoect(item)
+                this.updateLike()
               } else {
                 this.showHint = true
                 this.hint = 'Deleted Successfully'
                 this.color = 'orange'
                 this.toggleColoect(item)
+                this.updateLike()
               }
             })
             .catch(err => {
